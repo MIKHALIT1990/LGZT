@@ -4,6 +4,7 @@ export const MACHINES = [
     slug: 'lg918-deluxe',
     name: 'LGZT LG918 Deluxe',
     price: 1850000,
+    status: 'in-stock',
     image: 'https://picsum.photos/seed/lg918/800/600',
     description: 'Универсальный помощник для клининга, коммунальных и строительных работ. Максимальная комплектация для комфортной работы.',
     longDescription: 'Мини-фронтальный погрузчик LGZT LG918 Deluxe — это универсальный помощник для клининга, коммунальных и строительных работ. Надёжный двигатель, максимальная комплектация и высокая манёвренность делают эту модель идеальным выбором для любых задач. Можно оборудовать: щеткой, отвалом, вилами, ковшом и другим навесным оборудованием.',
@@ -33,6 +34,7 @@ export const MACHINES = [
     slug: 'lg928-deluxe',
     name: 'LGZT LG928 Deluxe',
     price: 2050000,
+    status: 'in-stock',
     image: 'https://picsum.photos/seed/lg928/800/600',
     description: 'Повышенная мощность и грузоподъемность для сложных задач. Усиленные мосты и увеличенная высота выгрузки.',
     longDescription: 'Модель LG928 Deluxe разработана для более интенсивных нагрузок. Усиленные мосты LGZT и увеличенная высота выгрузки до 3.5 метров позволяют загружать практически любые самосвалы. Идеально подходит для работы на строительных площадках и складах инертных материалов.',
@@ -62,6 +64,7 @@ export const MACHINES = [
     slug: 'lg918-standart',
     name: 'LGZT LG918 Standart',
     price: 1500000,
+    status: 'on-order',
     image: 'https://picsum.photos/seed/lg918s/800/600',
     description: 'Базовая комплектация для простых задач. Максимальная экономия при сохранении надежности.',
     longDescription: 'Комплектация Standart поставляется исключительно под заказ. Это решение для тех, кому нужен надежный инструмент без лишних опций. Отсутствие кондиционера и отопителя делает эту модель максимально доступной по цене.',
@@ -82,7 +85,93 @@ export const MACHINES = [
       'Усиленная рама',
       'Простая конструкция',
     ]
+  },
+  {
+    id: 'lg933-on-order',
+    slug: 'lg933-on-order',
+    name: 'LGZT LG933',
+    price: 2350000,
+    status: 'on-order',
+    image: 'https://picsum.photos/seed/lg933/800/600',
+    description: 'Мощный погрузчик с турбированным двигателем. Высокая производительность и надежность.',
+    specs: {
+      engine: 'Yunnei YN38 turbo',
+      power: '72 кВт',
+      fuel: 'Дизель',
+      transmission: 'Автоматическая YJ265',
+      drive: 'Полный привод 4WD',
+      payload: '2000 кг',
+      bucket: '1.0-1.5 м³',
+    },
+    features: [
+      'Турбонаддув',
+      'Усиленные мосты LGZT',
+      'Высокая высота выгрузки',
+    ]
+  },
+  {
+    id: 'lg936-on-order',
+    slug: 'lg936-on-order',
+    name: 'LGZT LG936',
+    price: 2650000,
+    status: 'on-order',
+    image: 'https://picsum.photos/seed/lg936/800/600',
+    description: 'Тяжелый погрузчик для интенсивной эксплуатации. Грузоподъемность 2.5 тонны.',
+    specs: {
+      payload: '2500 кг',
+      bucket: '1.4 м³',
+    },
+    features: [
+      'Грузоподъемность 2.5т',
+      'Усиленная конструкция',
+      'Профессиональная серия',
+    ]
+  },
+  {
+    id: 'lg939-on-order',
+    slug: 'lg939-on-order',
+    name: 'LGZT LG939',
+    price: 2950000,
+    status: 'on-order',
+    image: 'https://picsum.photos/seed/lg939/800/600',
+    description: 'Высокопроизводительный погрузчик с ковшом 1.6 м³. Грузоподъемность 3 тонны.',
+    specs: {
+      payload: '3000 кг',
+      bucket: '1.6 м³',
+    },
+    features: [
+      'Грузоподъемность 3т',
+      'Ковш 1.6 м³',
+      'Максимальная производительность',
+    ]
+  },
+  {
+    id: 'lg958-on-order',
+    slug: 'lg958-on-order',
+    name: 'LGZT LG958',
+    price: 3450000,
+    status: 'on-order',
+    image: 'https://picsum.photos/seed/lg958/800/600',
+    description: 'Флагман линейки. Максимальная грузоподъемность 3.5 тонны и ковш 1.8 м³.',
+    specs: {
+      payload: '3500 кг',
+      bucket: '1.8 м³',
+    },
+    features: [
+      'Флагманская модель',
+      'Грузоподъемность 3.5т',
+      'Ковш 1.8 м³',
+    ]
   }
+];
+
+export const LEASING_PARTNERS = [
+  { name: 'SberLeasing', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Sberbank_Logo_2020.svg/2560px-Sberbank_Logo_2020.svg.png' },
+  { name: 'VTB Leasing', logo: 'https://vtb-leasing.ru/local/templates/vtb/img/logo.svg' },
+  { name: 'Europlan', logo: 'https://europlan.ru/assets/images/logo.svg' },
+  { name: 'GTLK', logo: 'https://www.gtlk.ru/local/templates/gtlk/img/logo.svg' },
+  { name: 'Alfa Leasing', logo: 'https://alfaleasing.ru/assets/images/logo.svg' },
+  { name: 'Baltic Leasing', logo: 'https://baltleasing.ru/assets/images/logo.svg' },
 ];
 
 export const ARTICLES = [
@@ -147,13 +236,18 @@ export const COMPARISON_POINTS = [
     skidSteer: 'Высокий износ из-за бортового поворота',
   },
   {
+    title: 'Компоненты',
+    lgzt: 'Собственное производство мостов и КПП по стандартам Volvo',
+    skidSteer: 'Часто используются сторонние компоненты разного качества',
+  },
+  {
+    title: 'Комплектация',
+    lgzt: 'Богатейшая комплектация Deluxe в базе (камера, джойстик, AC)',
+    skidSteer: 'Многие опции доступны только за доплату',
+  },
+  {
     title: 'Проходимость (Клиренс)',
     lgzt: '390 мм',
     skidSteer: '185 мм',
-  },
-  {
-    title: 'Воздействие на грунт',
-    lgzt: 'Не разрушает газон при развороте',
-    skidSteer: 'Делает яму/колею при развороте на месте',
   }
 ];

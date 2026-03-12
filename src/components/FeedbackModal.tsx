@@ -81,7 +81,7 @@ export default function FeedbackModal({ isOpen, onClose, title = "Оставит
                       type="text"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full bg-stone-50 border-0 rounded-xl p-4 focus:ring-2 focus:ring-yellow-400 transition-all"
+                      className="w-full bg-stone-50 border-0 rounded-xl p-4 focus:ring-2 focus:ring-brand-orange transition-all"
                       placeholder="Иван Иванов"
                     />
                   </div>
@@ -92,7 +92,7 @@ export default function FeedbackModal({ isOpen, onClose, title = "Оставит
                       type="tel"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full bg-stone-50 border-0 rounded-xl p-4 focus:ring-2 focus:ring-yellow-400 transition-all"
+                      className="w-full bg-stone-50 border-0 rounded-xl p-4 focus:ring-2 focus:ring-brand-orange transition-all"
                       placeholder="+7 (___) ___-__-__"
                     />
                   </div>
@@ -101,13 +101,13 @@ export default function FeedbackModal({ isOpen, onClose, title = "Оставит
                     <textarea
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      className="w-full bg-stone-50 border-0 rounded-xl p-4 focus:ring-2 focus:ring-yellow-400 transition-all h-24"
+                      className="w-full bg-stone-50 border-0 rounded-xl p-4 focus:ring-2 focus:ring-brand-orange transition-all h-24"
                       placeholder="Меня интересует..."
                     />
                   </div>
                   <button
                     disabled={status === 'loading'}
-                    className="w-full bg-stone-900 text-white py-5 rounded-xl font-black text-lg hover:bg-yellow-400 hover:text-stone-900 transition-all shadow-lg flex items-center justify-center gap-2"
+                    className="w-full bg-brand-dark text-white py-5 rounded-xl font-black text-lg hover:bg-brand-orange transition-all shadow-lg flex items-center justify-center gap-2"
                   >
                     {status === 'loading' ? (
                       <>
