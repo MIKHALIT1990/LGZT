@@ -37,6 +37,50 @@ import FeedbackModal from './components/FeedbackModal';
 import LeasingCalculator from './components/LeasingCalculator';
 import Admin from './pages/Admin';
 
+// --- SEO Helper ---
+
+function SEO({ title, description, keywords, canonical, ogImage, schema }: { 
+  title: string, 
+  description: string, 
+  keywords?: string, 
+  canonical?: string,
+  ogImage?: string,
+  schema?: any
+}) {
+  const siteUrl = "https://lgzt-russia.ru";
+  const defaultOgImage = "https://picsum.photos/seed/lgzt-og/1200/630";
+  
+  return (
+    <Helmet>
+      <title>{title}</title>
+      <meta name="description" content={description} />
+      {keywords && <meta name="keywords" content={keywords} />}
+      {canonical && <link rel="canonical" href={canonical} />}
+      
+      {/* Open Graph */}
+      <meta property="og:type" content="website" />
+      <meta property="og:title" content={title} />
+      <meta property="og:description" content={description} />
+      <meta property="og:image" content={ogImage || defaultOgImage} />
+      <meta property="og:url" content={canonical || siteUrl} />
+      <meta property="og:site_name" content="LGZT Russia" />
+      
+      {/* Twitter */}
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={title} />
+      <meta name="twitter:description" content={description} />
+      <meta name="twitter:image" content={ogImage || defaultOgImage} />
+      
+      {/* Structured Data */}
+      {schema && (
+        <script type="application/ld+json">
+          {JSON.stringify(schema)}
+        </script>
+      )}
+    </Helmet>
+  );
+}
+
 // --- Shared Components ---
 
 function Logo({ className = "" }: { className?: string }) {
@@ -230,14 +274,34 @@ function Home({ machines, onOpenFeedback }: { machines: any[], onOpenFeedback: (
 
   if (!selectedMachine) return null;
 
+  const homeSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "LGZT Russia",
+    "url": "https://lgzt-russia.ru",
+    "logo": "https://lgzt-russia.ru/logo.png",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "8-800-555-35-35",
+      "contactType": "customer service",
+      "areaServed": "RU",
+      "availableLanguage": "Russian"
+    },
+    "sameAs": [
+      "https://vk.com/lgzt_russia",
+      "https://t.me/lgzt_russia"
+    ]
+  };
+
   return (
     <>
-      <Helmet>
-        <title>LGZT Russia — Официальный импортер мини-погрузчиков LGZT</title>
-        <meta name="description" content="Купить мини-погрузчики LGZT в России. Официальный дилер, сервис, запчасти. Лизинг от 0% аванса. Тест-драйв в вашем городе." />
-        <meta name="keywords" content="LGZT, мини-погрузчик, фронтальный погрузчик, купить погрузчик, спецтехника, LGZT Russia" />
-        <link rel="canonical" href="https://lgzt-russia.ru/" />
-      </Helmet>
+      <SEO 
+        title="LGZT Russia — Официальный импортер мини-погрузчиков LGZT"
+        description="Купить мини-погрузчики LGZT в России. Официальный дилер, сервис, запчасти. Лизинг от 0% аванса. Тест-драйв в вашем городе."
+        keywords="LGZT, мини-погрузчик, фронтальный погрузчик, купить погрузчик, спецтехника, LGZT Russia"
+        canonical="https://lgzt-russia.ru/"
+        schema={homeSchema}
+      />
       {/* Hero Section */}
       <section className="relative h-[90vh] flex items-center overflow-hidden bg-brand-dark">
         <div className="absolute inset-0 z-0">
@@ -672,12 +736,12 @@ function Catalog({ machines }: { machines: any[] }) {
 
   return (
     <div className="py-24 max-w-7xl mx-auto px-4 sm:px-8">
-      <Helmet>
-        <title>Каталог мини-погрузчиков LGZT | Модельный ряд 2026</title>
-        <meta name="description" content="Полный каталог мини-фронтальных погрузчиков LGZT. Технические характеристики, цены, комплектации Deluxe и Standart. Выберите свой погрузчик." />
-        <meta name="keywords" content="каталог LGZT, модели погрузчиков, характеристики погрузчиков, LG918, LG928, LG938" />
-        <link rel="canonical" href="https://lgzt-russia.ru/catalog" />
-      </Helmet>
+      <SEO 
+        title="Каталог мини-погрузчиков LGZT | Модельный ряд 2026"
+        description="Полный каталог мини-фронтальных погрузчиков LGZT. Технические характеристики, цены, комплектации Deluxe и Standart. Выберите свой погрузчик."
+        keywords="каталог LGZT, модели погрузчиков, характеристики погрузчиков, LG918, LG928, LG938"
+        canonical="https://lgzt-russia.ru/catalog"
+      />
       <div className="mb-16">
         <h1 className="text-5xl font-black uppercase tracking-tighter mb-8">Каталог <span className="text-brand-orange">Техники</span></h1>
         
@@ -760,12 +824,13 @@ function MachineDetail({ machines, onOpenFeedback }: { machines: any[], onOpenFe
 
   return (
     <div className="py-24 max-w-7xl mx-auto px-4 sm:px-8">
-      <Helmet>
-        <title>{machine.name} — Купить мини-погрузчик LGZT</title>
-        <meta name="description" content={machine.description} />
-        <meta name="keywords" content={`${machine.name}, купить ${machine.name}, характеристики ${machine.name}, погрузчик LGZT`} />
-        <link rel="canonical" href={`https://lgzt-russia.ru/catalog/${machine.slug}`} />
-      </Helmet>
+      <SEO 
+        title={`${machine.name} — Купить мини-погрузчик LGZT`}
+        description={machine.description}
+        keywords={`${machine.name}, купить ${machine.name}, характеристики ${machine.name}, погрузчик LGZT`}
+        canonical={`https://lgzt-russia.ru/catalog/${machine.slug}`}
+        ogImage={machine.image}
+      />
       <Link to="/catalog" className="inline-flex items-center gap-2 text-stone-500 hover:text-stone-900 mb-12 transition-colors">
         <ArrowRight className="rotate-180" size={20} /> Назад в каталог
       </Link>
@@ -858,12 +923,12 @@ function MachineDetail({ machines, onOpenFeedback }: { machines: any[], onOpenFe
 function Leasing({ onOpenFeedback }: { onOpenFeedback: (title: string) => void }) {
   return (
     <div className="py-24 max-w-7xl mx-auto px-4 sm:px-8">
-      <Helmet>
-        <title>Лизинг спецтехники LGZT | Аванс от 0%</title>
-        <meta name="description" content="Выгодные условия лизинга на погрузчики LGZT. Решение за 1 день, аванс от 0%, срок до 5 лет. Рассчитайте платеж на онлайн-калькуляторе." />
-        <meta name="keywords" content="лизинг спецтехники, лизинг погрузчиков, купить в лизинг, LGZT лизинг" />
-        <link rel="canonical" href="https://lgzt-russia.ru/leasing" />
-      </Helmet>
+      <SEO 
+        title="Лизинг спецтехники LGZT | Аванс от 0%"
+        description="Выгодные условия лизинга на погрузчики LGZT. Решение за 1 день, аванс от 0%, срок до 5 лет. Рассчитайте платеж на онлайн-калькуляторе."
+        keywords="лизинг спецтехники, лизинг погрузчиков, купить в лизинг, LGZT лизинг"
+        canonical="https://lgzt-russia.ru/leasing"
+      />
       <div className="grid lg:grid-cols-2 gap-16 items-center mb-24">
         <div>
           <div className="inline-block bg-brand-orange text-white px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-6">
@@ -930,11 +995,12 @@ function ArticleDetail({ articles }: { articles: any[] }) {
 
   return (
     <div className="py-24 max-w-4xl mx-auto px-4 sm:px-8">
-      <Helmet>
-        <title>{article.title} | LGZT Russia</title>
-        <meta name="description" content={article.desc} />
-        <link rel="canonical" href={`https://lgzt-russia.ru/articles/${article.slug}`} />
-      </Helmet>
+      <SEO 
+        title={`${article.title} | LGZT Russia`}
+        description={article.desc}
+        canonical={`https://lgzt-russia.ru/articles/${article.slug}`}
+        ogImage={article.image}
+      />
       <Link to="/articles" className="inline-flex items-center gap-2 text-stone-500 hover:text-stone-900 mb-12 transition-colors">
         <ArrowRight className="rotate-180" size={20} /> Назад к списку
       </Link>
@@ -956,12 +1022,12 @@ function ArticleDetail({ articles }: { articles: any[] }) {
 function Articles({ articles }: { articles: any[] }) {
   return (
     <div className="py-24 max-w-7xl mx-auto px-4 sm:px-8">
-      <Helmet>
-        <title>Новости и статьи LGZT Russia | Спецтехника в России</title>
-        <meta name="description" content="Полезные статьи о выборе и эксплуатации мини-погрузчиков, новости компании LGZT Russia, обзоры новых моделей." />
-        <meta name="keywords" content="новости LGZT, статьи о погрузчиках, обзоры спецтехники" />
-        <link rel="canonical" href="https://lgzt-russia.ru/articles" />
-      </Helmet>
+      <SEO 
+        title="Новости и статьи LGZT Russia | Спецтехника в России"
+        description="Полезные статьи о выборе и эксплуатации мини-погрузчиков, новости компании LGZT Russia, обзоры новых моделей."
+        keywords="новости LGZT, статьи о погрузчиках, обзоры спецтехники"
+        canonical="https://lgzt-russia.ru/articles"
+      />
       <h1 className="text-5xl font-black uppercase tracking-tighter mb-16">Статьи и <span className="text-brand-orange">Новости</span></h1>
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
         {articles.map(article => (
@@ -985,11 +1051,11 @@ function Articles({ articles }: { articles: any[] }) {
 function Contacts({ onOpenFeedback }: { onOpenFeedback: () => void }) {
   return (
     <div className="py-24 max-w-7xl mx-auto px-4 sm:px-8">
-      <Helmet>
-        <title>Контакты LGZT Russia — Официальный дилер</title>
-        <meta name="description" content="Свяжитесь с нами для консультации по выбору погрузчика LGZT. Адреса дилерских центров, телефоны, форма обратной связи." />
-        <link rel="canonical" href="https://lgzt-russia.ru/contacts" />
-      </Helmet>
+      <SEO 
+        title="Контакты LGZT Russia — Официальный дилер"
+        description="Свяжитесь с нами для консультации по выбору погрузчика LGZT. Адреса дилерских центров, телефоны, форма обратной связи."
+        canonical="https://lgzt-russia.ru/contacts"
+      />
       <h1 className="text-5xl font-black uppercase tracking-tighter mb-16">Наши <span className="text-yellow-500">Контакты</span></h1>
       <div className="grid lg:grid-cols-2 gap-16">
         <div className="space-y-12">
@@ -1041,9 +1107,11 @@ function Contacts({ onOpenFeedback }: { onOpenFeedback: () => void }) {
 function PrivacyPolicy() {
   return (
     <div className="py-24 max-w-4xl mx-auto px-4 sm:px-8">
-      <Helmet>
-        <title>Политика конфиденциальности | LGZT Russia</title>
-      </Helmet>
+      <SEO 
+        title="Политика конфиденциальности | LGZT Russia"
+        description="Политика в отношении обработки персональных данных пользователей сайта LGZT Russia."
+        canonical="https://lgzt-russia.ru/privacy"
+      />
       <h1 className="text-4xl font-black uppercase tracking-tighter mb-12">Политика <span className="text-brand-orange">конфиденциальности</span></h1>
       <div className="prose prose-stone max-w-none text-stone-600 space-y-6">
         <p>Настоящая Политика конфиденциальности описывает, как ваша личная информация собирается, используется и передается при посещении или совершении покупки на сайте lgztrussia.ru.</p>
@@ -1061,9 +1129,11 @@ function PrivacyPolicy() {
 function PublicOffer() {
   return (
     <div className="py-24 max-w-4xl mx-auto px-4 sm:px-8">
-      <Helmet>
-        <title>Публичная оферта | LGZT Russia</title>
-      </Helmet>
+      <SEO 
+        title="Публичная оферта | LGZT Russia"
+        description="Публичная оферта на приобретение спецтехники и запасных частей LGZT."
+        canonical="https://lgzt-russia.ru/offer"
+      />
       <h1 className="text-4xl font-black uppercase tracking-tighter mb-12">Публичная <span className="text-brand-orange">оферта</span></h1>
       <div className="prose prose-stone max-w-none text-stone-600 space-y-6">
         <p>Данный документ является официальным предложением (публичной офертой) компании LGZT Russia и содержит все существенные условия договора купли-продажи спецтехники.</p>
