@@ -1,0 +1,56 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: machines
+    // Fields: id, slug, name, price, status, image, images, description, longDescription, specs, features
+    //
+    // Collection: articles
+    // Fields: id, slug, title, date, image, desc, content
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+         (request.auth.token.email == "litvinov.stroyka@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    // Domain Validators
+    function isValidMachine(data) {
+      return data.keys().hasAll(['id', 'slug', 'name', 'price', 'status', 'image']) &&
+             data.name is string && data.name.size() < 200 &&
+             data.price is number && data.price >= 0 &&
+             data.slug is string && data.slug.size() < 100;
+    }
+
+    function isValidArticle(data) {
+      return data.keys().hasAll(['id', 'slug', 'title', 'date', 'image', 'desc', 'content']) &&
+             data.title is string && data.title.size() < 200 &&
+             data.slug is string && data.slug.size() < 100;
+    }
+
+    // Rules
+    match /machines/{machineId} {
+      allow read: if true; // Public catalog
+      allow write: if isAdmin() && isValidMachine(request.resource.data);
+    }
+
+    match /articles/{articleId} {
+      allow read: if true; // Public articles
+      allow write: if isAdmin() && isValidArticle(request.resource.data);
+    }
+
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}

@@ -14,6 +14,16 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { 
+  collection, 
+  doc, 
+  setDoc, 
+  deleteDoc, 
+  onSnapshot, 
+  query, 
+  writeBatch 
+} from 'firebase/firestore';
+import { db } from '../firebase';
 
 interface Machine {
   id: string;
@@ -51,20 +61,42 @@ export default function Admin() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      fetchData();
+      const unsubMachines = onSnapshot(collection(db, 'machines'), (snapshot) => {
+        setMachines(snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }) as Machine));
+      });
+      const unsubArticles = onSnapshot(collection(db, 'articles'), (snapshot) => {
+        setArticles(snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }) as Article));
+      });
+      return () => {
+        unsubMachines();
+        unsubArticles();
+      };
     }
   }, [isAuthenticated]);
 
-  const fetchData = async () => {
+  const handleMigrate = async () => {
+    if (!confirm('Это перенесет данные из временного файла в постоянную базу данных. Продолжить?')) return;
     try {
       const [mRes, aRes] = await Promise.all([
         fetch('/api/machines'),
         fetch('/api/articles')
       ]);
-      setMachines(await mRes.json());
-      setArticles(await aRes.json());
+      const mData = await mRes.json();
+      const aData = await aRes.json();
+
+      const batch = writeBatch(db);
+      mData.forEach((m: any) => {
+        const ref = doc(db, 'machines', m.id || m.slug);
+        batch.set(ref, m);
+      });
+      aData.forEach((a: any) => {
+        const ref = doc(db, 'articles', a.id || a.slug);
+        batch.set(ref, a);
+      });
+      await batch.commit();
+      setStatus({ type: 'success', msg: 'Миграция завершена!' });
     } catch (error) {
-      console.error('Error fetching data:', error);
+      setStatus({ type: 'error', msg: 'Ошибка миграции' });
     }
   };
 
@@ -80,26 +112,17 @@ export default function Admin() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     const isNew = !editingItem.id;
-    const url = activeTab === 'machines' 
-      ? (isNew ? '/api/machines' : `/api/machines/${editingItem.id}`)
-      : (isNew ? '/api/articles' : `/api/articles/${editingItem.id}`);
-    
-    const method = isNew ? 'POST' : 'PUT';
+    const collectionName = activeTab === 'machines' ? 'machines' : 'articles';
+    const id = isNew ? (editingItem.slug || Date.now().toString()) : editingItem.id;
 
     try {
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editingItem)
-      });
+      const docRef = doc(db, collectionName, id);
+      await setDoc(docRef, { ...editingItem, id });
 
-      if (res.ok) {
-        setStatus({ type: 'success', msg: 'Сохранено успешно!' });
-        fetchData();
-        setIsModalOpen(false);
-        setEditingItem(null);
-        setTimeout(() => setStatus(null), 3000);
-      }
+      setStatus({ type: 'success', msg: 'Сохранено успешно!' });
+      setIsModalOpen(false);
+      setEditingItem(null);
+      setTimeout(() => setStatus(null), 3000);
     } catch (error) {
       setStatus({ type: 'error', msg: 'Ошибка при сохранении' });
     }
@@ -107,16 +130,12 @@ export default function Admin() {
 
   const handleDelete = async (id: string) => {
     if (!confirm('Вы уверены?')) return;
-    
-    const url = activeTab === 'machines' ? `/api/machines/${id}` : `/api/articles/${id}`;
-    
+    const collectionName = activeTab === 'machines' ? 'machines' : 'articles';
+
     try {
-      const res = await fetch(url, { method: 'DELETE' });
-      if (res.ok) {
-        setStatus({ type: 'success', msg: 'Удалено!' });
-        fetchData();
-        setTimeout(() => setStatus(null), 3000);
-      }
+      await deleteDoc(doc(db, collectionName, id));
+      setStatus({ type: 'success', msg: 'Удалено!' });
+      setTimeout(() => setStatus(null), 3000);
     } catch (error) {
       setStatus({ type: 'error', msg: 'Ошибка при удалении' });
     }
@@ -194,9 +213,22 @@ export default function Admin() {
       {/* Main Content */}
       <main className="flex-1 p-12 overflow-y-auto">
         <div className="flex justify-between items-center mb-12">
-          <h2 className="text-4xl font-black uppercase tracking-tighter">
-            {activeTab === 'machines' ? 'Управление техникой' : 'Управление статьями'}
-          </h2>
+          <div className="space-y-1">
+            <h2 className="text-4xl font-black uppercase tracking-tighter">
+              {activeTab === 'machines' ? 'Управление техникой' : 'Управление статьями'}
+            </h2>
+            <div className="flex items-center gap-4">
+              <p className="text-green-600 text-xs font-bold flex items-center gap-2">
+                <CheckCircle2 size={14} /> Данные синхронизированы с Firebase
+              </p>
+              <button 
+                onClick={handleMigrate}
+                className="text-[10px] font-black uppercase tracking-widest text-stone-400 hover:text-brand-orange transition-colors"
+              >
+                Перенести из JSON
+              </button>
+            </div>
+          </div>
           <button 
             onClick={() => {
               setEditingItem(activeTab === 'machines' ? { name: '', slug: '', price: 0, status: 'in-stock', images: ['', '', '', ''], specs: {}, features: [] } : { title: '', slug: '', date: '', desc: '', content: '' });

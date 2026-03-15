@@ -1,0 +1,48 @@
+{
+  "entities": {
+    "Machine": {
+      "title": "Machine",
+      "description": "A machine in the catalog",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "slug": { "type": "string" },
+        "name": { "type": "string" },
+        "price": { "type": "number" },
+        "status": { "type": "string" },
+        "image": { "type": "string" },
+        "images": { "type": "array", "items": { "type": "string" } },
+        "description": { "type": "string" },
+        "longDescription": { "type": "string" },
+        "specs": { "type": "object" },
+        "features": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["id", "slug", "name", "price", "status", "image"]
+    },
+    "Article": {
+      "title": "Article",
+      "description": "A news article or blog post",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "slug": { "type": "string" },
+        "title": { "type": "string" },
+        "date": { "type": "string" },
+        "image": { "type": "string" },
+        "desc": { "type": "string" },
+        "content": { "type": "string" }
+      },
+      "required": ["id", "slug", "title", "date", "image", "desc", "content"]
+    }
+  },
+  "firestore": {
+    "/machines/{machineId}": {
+      "schema": "Machine",
+      "description": "Collection of machines"
+    },
+    "/articles/{articleId}": {
+      "schema": "Article",
+      "description": "Collection of articles"
+    }
+  }
+}
