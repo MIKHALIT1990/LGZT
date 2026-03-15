@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  BrowserRouter as Router, 
   Routes, 
   Route, 
   Link, 
@@ -1212,6 +1211,13 @@ export default function App() {
   const [machines, setMachines] = useState<any[]>([]);
   const [articles, setArticles] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const location = useLocation();
+  const isAdminPage = location.pathname === '/admin';
+
+  // Scroll to top on route change
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
 
   useEffect(() => {
     const unsubMachines = onSnapshot(query(collection(db, 'machines')), (snapshot) => {
@@ -1262,36 +1268,34 @@ export default function App() {
 
   return (
     <HelmetProvider>
-      <Router>
-        <div className="min-h-screen bg-stone-50 text-stone-900 font-sans flex flex-col">
-          <Header onOpenFeedback={() => openFeedback("Заказать звонок")} />
-          
-          <main className="flex-grow">
-            <Routes>
-              <Route path="/" element={<Home machines={machines} onOpenFeedback={openFeedback} />} />
-              <Route path="/catalog" element={<Catalog machines={machines} />} />
-              <Route path="/catalog/:slug" element={<MachineDetail machines={machines} onOpenFeedback={openFeedback} />} />
-              <Route path="/leasing" element={<Leasing onOpenFeedback={openFeedback} />} />
-              <Route path="/articles" element={<Articles articles={articles} />} />
-              <Route path="/articles/:slug" element={<ArticleDetail articles={articles} />} />
-              <Route path="/contacts" element={<Contacts onOpenFeedback={() => openFeedback("Стать дилером")} />} />
-              <Route path="/privacy" element={<PrivacyPolicy />} />
-              <Route path="/offer" element={<PublicOffer />} />
-              <Route path="/admin" element={<Admin />} />
-            </Routes>
-          </main>
+      <div className="min-h-screen bg-stone-50 text-stone-900 font-sans flex flex-col">
+        {!isAdminPage && <Header onOpenFeedback={() => openFeedback("Заказать звонок")} />}
+        
+        <main className="flex-grow">
+          <Routes>
+            <Route path="/" element={<Home machines={machines} onOpenFeedback={openFeedback} />} />
+            <Route path="/catalog" element={<Catalog machines={machines} />} />
+            <Route path="/catalog/:slug" element={<MachineDetail machines={machines} onOpenFeedback={openFeedback} />} />
+            <Route path="/leasing" element={<Leasing onOpenFeedback={openFeedback} />} />
+            <Route path="/articles" element={<Articles articles={articles} />} />
+            <Route path="/articles/:slug" element={<ArticleDetail articles={articles} />} />
+            <Route path="/contacts" element={<Contacts onOpenFeedback={() => openFeedback("Стать дилером")} />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/offer" element={<PublicOffer />} />
+            <Route path="/admin" element={<Admin />} />
+          </Routes>
+        </main>
 
-          <ContactSection onOpenFeedback={() => openFeedback("Заявка с карты")} />
-          <Footer machines={machines} />
-          
-          <ChatWidget />
-          <FeedbackModal 
-            isOpen={isFeedbackOpen} 
-            onClose={() => setIsFeedbackOpen(false)} 
-            title={feedbackTitle}
-          />
-        </div>
-      </Router>
+        {!isAdminPage && <ContactSection onOpenFeedback={() => openFeedback("Заявка с карты")} />}
+        {!isAdminPage && <Footer machines={machines} />}
+        
+        <ChatWidget />
+        <FeedbackModal 
+          isOpen={isFeedbackOpen} 
+          onClose={() => setIsFeedbackOpen(false)} 
+          title={feedbackTitle}
+        />
+      </div>
     </HelmetProvider>
   );
 }

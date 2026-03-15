@@ -60,6 +60,7 @@ export default function Admin() {
   const [status, setStatus] = useState<{ type: 'success' | 'error', msg: string } | null>(null);
 
   useEffect(() => {
+    console.log('Admin component mounted');
     if (isAuthenticated) {
       const unsubMachines = onSnapshot(collection(db, 'machines'), (snapshot) => {
         setMachines(snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }) as Machine));
@@ -172,6 +173,11 @@ export default function Admin() {
             <button className="w-full bg-brand-dark text-white py-5 rounded-2xl font-black text-lg hover:bg-brand-orange transition-all">
               ВОЙТИ
             </button>
+            <div className="text-center mt-6">
+              <a href="/" className="text-stone-400 text-xs font-bold uppercase tracking-widest hover:text-brand-orange transition-colors">
+                ← На главную
+              </a>
+            </div>
           </form>
         </motion.div>
       </div>
