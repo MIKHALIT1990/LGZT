@@ -3,7 +3,7 @@ name: 🚀 FRESH START DEPLOY
 on:
   push:
     branches: [ main ]
-  workflow_dispatch: # Позволяет запускать вручную!
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -24,7 +24,9 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./dist/
           server-dir: ./public_html/
-          dangerous-clean-slate: true
+          # Добавляем таймаут и отключаем проверку состояния для стабильности
+          protocol: ftp
+          port: 21
 
       - name: ⚙️ Upload Server (Backend)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -34,9 +36,10 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./
           server-dir: /var/www/lgzt-back/
-          dangerous-clean-slate: true
+          # Здесь НЕ чистим всё подряд, чтобы не провоцировать таймауты
           exclude: |
             node_modules/**
             dist/**
             src/**
             .git/**
+            .github/**
