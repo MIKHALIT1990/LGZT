@@ -29,7 +29,7 @@ jobs:
         # Удали старые файлы, чтобы сайт был чистым
         dangerous-clean-slate: true 
 
-    # ШАГ 2: Отправляем БЭКЕНД (исходники сервера) на VPS
+# 2. Отправляем БЭКЕНД на VPS
     - name: 📂 Deploy Backend to VPS
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
@@ -37,11 +37,10 @@ jobs:
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./
-        server-dir: /var/www/lgzt-back/
-        # Не копируем лишнее на сервер
+        # Пробуем указать путь БЕЗ начального слэша, если FTP сразу кидает в корень
+        server-dir: var/www/lgzt-back/ 
         exclude: |
           node_modules/**
           dist/**
           src/**
           .git/**
-          .github/**
