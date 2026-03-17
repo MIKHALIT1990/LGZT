@@ -24,27 +24,17 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./dist/
-          server-dir: ./lgzt-trade.ru/public_html/
+          server-dir: ./public_html/
           dangerous-clean-slate: true
           port: 21
-          protocol: ftp
 
       - name: ⚙️ Upload Server to VPS (SFTP)
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        uses: appleboy/scp-action@v0.1.7
         with:
-          server: ${{ secrets.VPS_SERVER }}
+          host: ${{ secrets.VPS_SERVER }}
           username: ${{ secrets.VPS_USERNAME }}
           password: ${{ secrets.VPS_PASSWORD }}
-          local-dir: ./
-          server-dir: /var/www/lgzt-back/
           port: 22
-          protocol: sftp
-          dangerous-clean-slate: false
-          exclude: |
-            node_modules/**
-            dist/**
-            src/**
-            .git/**
-            .github/**
-            .env
-            data.json
+          source: "./*,!.git,!.github,!node_modules,!dist,!src"
+          target: "/var/www/lgzt-back/"
+          overwrite: true
