@@ -106,7 +106,7 @@ function Logo({ className = "" }: { className?: string }) {
       </div>
       <div className="flex flex-col leading-none">
         <span className="font-black text-2xl tracking-tighter text-brand-dark">LGZT</span>
-        <span className="text-[8px] font-bold uppercase tracking-[0.3em] text-brand-red">Russia</span>
+        <span className="text-[8px] font-bold uppercase tracking-[0.3em] text-brand-red">Russia <span className="opacity-20">v1.0.2</span></span>
       </div>
     </div>
   );
@@ -147,6 +147,7 @@ function Header({ onOpenFeedback }: { onOpenFeedback: () => void }) {
           <Link to="/leasing" className="hover:text-brand-orange transition-colors">Лизинг</Link>
           <Link to="/articles" className="hover:text-brand-orange transition-colors">Статьи</Link>
           <Link to="/contacts" className="hover:text-brand-orange transition-colors">Контакты</Link>
+          <Link to="/admin" className="bg-stone-100 text-stone-400 px-3 py-1 rounded-md text-[10px] hover:text-brand-orange transition-colors">Админ</Link>
           <button 
             onClick={() => onOpenFeedback()}
             className="bg-brand-dark text-white px-6 py-2.5 rounded-full hover:bg-brand-orange transition-all duration-300"
@@ -173,6 +174,7 @@ function Header({ onOpenFeedback }: { onOpenFeedback: () => void }) {
             <Link to="/leasing" className="text-lg font-medium">Лизинг</Link>
             <Link to="/articles" className="text-lg font-medium">Статьи</Link>
             <Link to="/contacts" className="text-lg font-medium">Контакты</Link>
+            <Link to="/admin" className="text-sm text-stone-400 mt-2">Панель управления</Link>
             <button 
               onClick={onOpenFeedback}
               className="bg-yellow-400 text-stone-900 font-bold py-3 rounded-xl mt-4"
@@ -1212,7 +1214,7 @@ export default function App() {
   const [articles, setArticles] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
-  const isAdminPage = location.pathname === '/admin';
+  const isAdminPage = location.pathname.startsWith('/admin');
 
   // Scroll to top on route change
   useEffect(() => {
@@ -1283,6 +1285,7 @@ export default function App() {
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/offer" element={<PublicOffer />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/" element={<Admin />} />
           </Routes>
         </main>
 
