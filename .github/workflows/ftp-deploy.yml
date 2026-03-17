@@ -16,7 +16,7 @@ jobs:
           npm install
           npm run build
 
-      - name: 🌐 Upload Site (Frontend)
+- name: 🌐 Upload Site (Frontend)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -24,9 +24,8 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./dist/
           server-dir: ./public_html/
-          # Добавляем таймаут и отключаем проверку состояния для стабильности
-          protocol: ftp
-          port: 21
+          dangerous-clean-slate: true # ВКЛЮЧАЕМ ПОЛНУЮ ОЧИСТКУ
+          server-port: 21
 
       - name: ⚙️ Upload Server (Backend)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
