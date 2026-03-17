@@ -1,4 +1,4 @@
-name: 🚀 FRESH START DEPLOY
+name: 🚀 DOUBLE DEPLOY (SITE & SERVER)
 
 on:
   push:
@@ -17,7 +17,7 @@ jobs:
           npm install
           npm run build
 
-      - name: 🌐 Upload Site (Frontend to Beget)
+      - name: 🌐 Upload Site to BEGET (FTP)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -27,15 +27,18 @@ jobs:
           server-dir: ./lgzt-trade.ru/public_html/
           dangerous-clean-slate: true
           port: 21
+          protocol: ftp
 
-      - name: ⚙️ Upload Server (Backend to VPS)
+      - name: ⚙️ Upload Server to VPS (SFTP)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
+          server: ${{ secrets.VPS_SERVER }}
+          username: ${{ secrets.VPS_USERNAME }}
+          password: ${{ secrets.VPS_PASSWORD }}
           local-dir: ./
           server-dir: /var/www/lgzt-back/
+          port: 22
+          protocol: sftp
           dangerous-clean-slate: false
           exclude: |
             node_modules/**
@@ -43,3 +46,5 @@ jobs:
             src/**
             .git/**
             .github/**
+            .env
+            data.json
