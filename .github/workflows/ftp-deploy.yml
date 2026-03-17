@@ -1,3 +1,42 @@
-git add .
-git commit -m "fresh start"
-git push
+name: 🚀 FRESH START DEPLOY
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: # Позволяет запускать вручную!
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 🛠️ Build Frontend
+        run: |
+          npm install
+          npm run build
+
+      - name: 🌐 Upload Site (Frontend)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./dist/
+          server-dir: ./public_html/
+          dangerous-clean-slate: true
+
+      - name: ⚙️ Upload Server (Backend)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./
+          server-dir: /var/www/lgzt-back/
+          dangerous-clean-slate: true
+          exclude: |
+            node_modules/**
+            dist/**
+            src/**
+            .git/**
