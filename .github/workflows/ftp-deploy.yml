@@ -1,0 +1,24 @@
+name: 🚀 Deploy to FTP
+
+on:
+  push:
+    branches:
+      - main  # Проверьте, что ваша ветка называется main. Если master — замените.
+
+jobs:
+  web-deploy:
+    name: 🚚 Sync Files to Hosting
+    runs-on: ubuntu-latest
+    steps:
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v4
+
+    - name: 📂 Sync files via FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        server-dir: ${{ secrets.FTP_SERVER_DIR }}
+        # Если вы НЕ используете сборку Jekyll, а просто кидаете HTML-файлы:
+        local-dir: ./
