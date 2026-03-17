@@ -24,7 +24,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./dist/
-          server-dir: ./lgzt-trade.ru/public_html
+          server-dir: ./lgzt-trade.ru/public_html/
           dangerous-clean-slate: true
           port: 21
 
