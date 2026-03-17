@@ -1,0 +1,45 @@
+name: 🚀 FRESH START DEPLOY
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Build Frontend
+        run: |
+          npm install
+          npm run build
+
+      - name: 🌐 Upload Site (Frontend to Beget)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./dist/
+          server-dir: ./lgzt-trade.ru/public_html
+          dangerous-clean-slate: true
+          port: 21
+
+      - name: ⚙️ Upload Server (Backend to VPS)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./
+          server-dir: /var/www/lgzt-back/
+          dangerous-clean-slate: false
+          exclude: |
+            node_modules/**
+            dist/**
+            src/**
+            .git/**
+            .github/**
