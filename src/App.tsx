@@ -30,7 +30,7 @@ import {
   Clock
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, getDocFromServer, doc } from 'firebase/firestore';
 import { db } from './firebase';
 import { MACHINES, ARTICLES, DEALERS, COMPARISON_POINTS, LEASING_PARTNERS } from './constants';
 import ChatWidget from './components/ChatWidget';
@@ -1222,6 +1222,17 @@ export default function App() {
   }, [location.pathname]);
 
   useEffect(() => {
+    async function testConnection() {
+      try {
+        await getDocFromServer(doc(db, 'test', 'connection'));
+      } catch (error) {
+        if(error instanceof Error && error.message.includes('the client is offline')) {
+          console.error("Please check your Firebase configuration. ");
+        }
+      }
+    }
+    testConnection();
+
     const unsubMachines = onSnapshot(query(collection(db, 'machines')), (snapshot) => {
       const mData = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
       if (mData.length > 0) {
