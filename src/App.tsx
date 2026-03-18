@@ -123,7 +123,8 @@ const SPECS_TRANSLATIONS: Record<string, string> = {
   weight: 'Собственный вес',
   payload: 'Грузоподъемность',
   bucket: 'Объем ковша',
-  dimensions: 'Габариты'
+  dimensions: 'Габариты',
+  tires: 'Шины'
 };
 
 function Header({ onOpenFeedback }: { onOpenFeedback: () => void }) {
@@ -346,78 +347,69 @@ function Home({ machines, onOpenFeedback }: { machines: any[], onOpenFeedback: (
         </div>
       </section>
 
-      <LeasingTicker />
+      {/* Catalog Preview - Mirrored Layout */}
+      <section className="py-24 max-w-7xl mx-auto px-4 sm:px-8">
+        <div className="text-center mb-20">
+          <h2 className="text-5xl font-black mb-4 uppercase tracking-tighter">Модельный ряд <span className="text-brand-orange">в наличии</span></h2>
+          <p className="text-stone-500 max-w-2xl mx-auto">
+            Техника, готовая к отгрузке сегодня. Проверенные модели в максимальной комплектации для Вашего бизнеса.
+          </p>
+        </div>
 
-      {/* Technical Advantages */}
-      <section className="py-32 bg-white overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-8">
-          <div className="grid lg:grid-cols-2 gap-24 items-center">
-            <div className="relative">
-              <div className="absolute -top-20 -left-20 w-64 h-64 bg-brand-orange/5 rounded-full blur-3xl" />
-              <div className="relative z-10 space-y-12">
-                <div>
-                  <h2 className="text-5xl font-black uppercase tracking-tighter mb-6 leading-tight">
-                    Техническое <br /> <span className="text-brand-orange">Превосходство</span>
-                  </h2>
-                  <p className="text-stone-500 text-lg leading-relaxed">
-                    Погрузчики LGZT спроектированы для работы в ограниченных пространствах, где обычная техника бессильна.
-                  </p>
+        <div className="space-y-32">
+          {machines.filter(m => m.status === 'in-stock').map((m, i) => (
+            <div key={m.id} className={`flex flex-col lg:flex-row gap-16 items-center ${i % 2 !== 0 ? 'lg:flex-row-reverse' : ''}`}>
+              <div className="flex-1 w-full">
+                <motion.div 
+                  initial={{ opacity: 0, x: i % 2 === 0 ? -50 : 50 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  className="relative group"
+                >
+                  <div className="aspect-[16/10] rounded-[40px] overflow-hidden shadow-2xl">
+                    <img 
+                      src={m.image} 
+                      alt={m.name} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                  <div className="absolute -bottom-6 -right-6 bg-brand-orange text-white px-8 py-4 rounded-2xl font-black text-2xl shadow-xl">
+                    ОТ {m.price.toLocaleString()} ₽
+                  </div>
+                </motion.div>
+              </div>
+              
+              <div className="flex-1 space-y-8">
+                <div className="space-y-4">
+                  <div className="text-brand-orange font-black uppercase tracking-widest text-xs">В наличии на складе</div>
+                  <h3 className="text-4xl font-black uppercase tracking-tighter leading-none">{m.name}</h3>
+                  <p className="text-stone-500 text-lg leading-relaxed">{m.description}</p>
                 </div>
 
-                <div className="grid gap-8">
-                  <div className="flex gap-6 items-start p-8 rounded-3xl bg-stone-50 border border-stone-100 hover:border-brand-orange/30 transition-all group">
-                    <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-brand-orange shadow-sm group-hover:bg-brand-orange group-hover:text-white transition-all duration-500">
-                      <Eye size={28} />
+                <div className="grid grid-cols-2 gap-6">
+                  {Object.entries(m.specs).slice(0, 4).map(([key, value], idx) => (
+                    <div key={idx} className="border-b border-stone-100 pb-2">
+                      <div className="text-[10px] uppercase font-bold text-stone-400 tracking-widest mb-1">{SPECS_TRANSLATIONS[key] || key}</div>
+                      <div className="font-bold text-sm">{value as string}</div>
                     </div>
-                    <div>
-                      <h4 className="font-black uppercase text-sm tracking-tight mb-2">Обзорность +40%</h4>
-                      <p className="text-stone-500 text-sm leading-relaxed">Конструкция кабины и стрелы обеспечивает панорамный обзор, исключая "слепые зоны".</p>
-                    </div>
-                  </div>
+                  ))}
+                </div>
 
-                  <div className="flex gap-6 items-start p-8 rounded-3xl bg-stone-50 border border-stone-100 hover:border-brand-orange/30 transition-all group">
-                    <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-brand-orange shadow-sm group-hover:bg-brand-orange group-hover:text-white transition-all duration-500">
-                      <Settings size={28} />
-                    </div>
-                    <div>
-                      <h4 className="font-black uppercase text-sm tracking-tight mb-2">Технологии Volvo</h4>
-                      <p className="text-stone-500 text-sm leading-relaxed">В производстве применяются технологии, внедряемые совместно с холдингом VOLVO CE с 2007 года.</p>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-6 items-start p-8 rounded-3xl bg-stone-50 border border-stone-100 hover:border-brand-orange/30 transition-all group">
-                    <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-brand-orange shadow-sm group-hover:bg-brand-orange group-hover:text-white transition-all duration-500">
-                      <Zap size={28} />
-                    </div>
-                    <div>
-                      <h4 className="font-black uppercase text-sm tracking-tight mb-2">Комплектация Deluxe</h4>
-                      <p className="text-stone-500 text-sm leading-relaxed">Самая богатая стандартная комплектация: камера, кондиционер, джойстик, быстросъем и 4-контурная гидролиния.</p>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-6 items-start p-8 rounded-3xl bg-stone-50 border border-stone-100 hover:border-brand-orange/30 transition-all group">
-                    <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-brand-orange shadow-sm group-hover:bg-brand-orange group-hover:text-white transition-all duration-500">
-                      <ShieldCheck size={28} />
-                    </div>
-                    <div>
-                      <h4 className="font-black uppercase text-sm tracking-tight mb-2">Гарантия 1 год</h4>
-                      <p className="text-stone-500 text-sm leading-relaxed">Официальная поддержка 12 месяцев или 1500 моточасов. Склад запчастей всегда в наличии.</p>
-                    </div>
-                  </div>
+                <div className="flex flex-wrap gap-4 pt-4">
+                  <Link to={`/catalog/${m.slug}`} className="bg-brand-dark text-white px-8 py-4 rounded-xl font-bold hover:bg-brand-orange transition-all">
+                    ПОДРОБНЕЕ
+                  </Link>
+                  <button 
+                    onClick={() => onOpenFeedback(`Заявка на ${m.name}`)}
+                    className="border border-stone-200 px-8 py-4 rounded-xl font-bold hover:bg-stone-50 transition-all"
+                  >
+                    ПОЛУЧИТЬ ПРЕДЛОЖЕНИЕ
+                  </button>
                 </div>
               </div>
             </div>
-
-            <div className="relative">
-              <div className="aspect-square rounded-[60px] overflow-hidden shadow-2xl rotate-3 scale-95 hover:rotate-0 hover:scale-100 transition-all duration-700">
-                <img src="https://picsum.photos/seed/tech/1000/1000" alt="Tech" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-              </div>
-              <div className="absolute -bottom-10 -left-10 bg-brand-dark text-white p-10 rounded-[40px] shadow-2xl border border-white/10 max-w-xs">
-                <div className="text-5xl font-black text-brand-orange mb-2">8X</div>
-                <div className="text-sm font-bold uppercase tracking-widest leading-tight">Меньше износ шин <br /> <span className="opacity-40 font-medium">чем у Bobcat</span></div>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </section>
 
@@ -531,69 +523,76 @@ function Home({ machines, onOpenFeedback }: { machines: any[], onOpenFeedback: (
         </div>
       </section>
 
-      {/* Catalog Preview - Mirrored Layout */}
-      <section className="py-24 max-w-7xl mx-auto px-4 sm:px-8">
-        <div className="text-center mb-20">
-          <h2 className="text-5xl font-black mb-4 uppercase tracking-tighter">Модельный ряд <span className="text-brand-orange">в наличии</span></h2>
-          <p className="text-stone-500 max-w-2xl mx-auto">
-            Техника, готовая к отгрузке сегодня. Проверенные модели в максимальной комплектации для Вашего бизнеса.
-          </p>
-        </div>
-
-        <div className="space-y-32">
-          {machines.filter(m => m.status === 'in-stock').map((m, i) => (
-            <div key={m.id} className={`flex flex-col lg:flex-row gap-16 items-center ${i % 2 !== 0 ? 'lg:flex-row-reverse' : ''}`}>
-              <div className="flex-1 w-full">
-                <motion.div 
-                  initial={{ opacity: 0, x: i % 2 === 0 ? -50 : 50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  className="relative group"
-                >
-                  <div className="aspect-[16/10] rounded-[40px] overflow-hidden shadow-2xl">
-                    <img 
-                      src={m.image} 
-                      alt={m.name} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                      referrerPolicy="no-referrer"
-                    />
-                  </div>
-                  <div className="absolute -bottom-6 -right-6 bg-brand-orange text-white px-8 py-4 rounded-2xl font-black text-2xl shadow-xl">
-                    ОТ {m.price.toLocaleString()} ₽
-                  </div>
-                </motion.div>
-              </div>
-              
-              <div className="flex-1 space-y-8">
-                <div className="space-y-4">
-                  <div className="text-brand-orange font-black uppercase tracking-widest text-xs">В наличии на складе</div>
-                  <h3 className="text-4xl font-black uppercase tracking-tighter leading-none">{m.name}</h3>
-                  <p className="text-stone-500 text-lg leading-relaxed">{m.description}</p>
+      {/* Technical Advantages */}
+      <section className="py-32 bg-white overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8">
+          <div className="grid lg:grid-cols-2 gap-24 items-center">
+            <div className="relative">
+              <div className="absolute -top-20 -left-20 w-64 h-64 bg-brand-orange/5 rounded-full blur-3xl" />
+              <div className="relative z-10 space-y-12">
+                <div>
+                  <h2 className="text-5xl font-black uppercase tracking-tighter mb-6 leading-tight">
+                    Техническое <br /> <span className="text-brand-orange">Превосходство</span>
+                  </h2>
+                  <p className="text-stone-500 text-lg leading-relaxed">
+                    Погрузчики LGZT спроектированы для работы в ограниченных пространствах, где обычная техника бессильна.
+                  </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-6">
-                  {Object.entries(m.specs).slice(0, 4).map(([key, value], idx) => (
-                    <div key={idx} className="border-b border-stone-100 pb-2">
-                      <div className="text-[10px] uppercase font-bold text-stone-400 tracking-widest mb-1">{SPECS_TRANSLATIONS[key] || key}</div>
-                      <div className="font-bold text-sm">{value as string}</div>
+                <div className="grid gap-8">
+                  <div className="flex gap-6 items-start p-8 rounded-3xl bg-stone-50 border border-stone-100 hover:border-brand-orange/30 transition-all group">
+                    <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-brand-orange shadow-sm group-hover:bg-brand-orange group-hover:text-white transition-all duration-500">
+                      <Eye size={28} />
                     </div>
-                  ))}
-                </div>
+                    <div>
+                      <h4 className="font-black uppercase text-sm tracking-tight mb-2">Обзорность +40%</h4>
+                      <p className="text-stone-500 text-sm leading-relaxed">Конструкция кабины и стрелы обеспечивает панорамный обзор, исключая "слепые зоны".</p>
+                    </div>
+                  </div>
 
-                <div className="flex flex-wrap gap-4 pt-4">
-                  <Link to={`/catalog/${m.slug}`} className="bg-brand-dark text-white px-8 py-4 rounded-xl font-bold hover:bg-brand-orange transition-all">
-                    ПОДРОБНЕЕ
-                  </Link>
-                  <button 
-                    onClick={() => onOpenFeedback(`Заявка на ${m.name}`)}
-                    className="border border-stone-200 px-8 py-4 rounded-xl font-bold hover:bg-stone-50 transition-all"
-                  >
-                    ПОЛУЧИТЬ ПРЕДЛОЖЕНИЕ
-                  </button>
+                  <div className="flex gap-6 items-start p-8 rounded-3xl bg-stone-50 border border-stone-100 hover:border-brand-orange/30 transition-all group">
+                    <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-brand-orange shadow-sm group-hover:bg-brand-orange group-hover:text-white transition-all duration-500">
+                      <Settings size={28} />
+                    </div>
+                    <div>
+                      <h4 className="font-black uppercase text-sm tracking-tight mb-2">Технологии Volvo</h4>
+                      <p className="text-stone-500 text-sm leading-relaxed">В производстве применяются технологии, внедряемые совместно с холдингом VOLVO CE с 2007 года.</p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-6 items-start p-8 rounded-3xl bg-stone-50 border border-stone-100 hover:border-brand-orange/30 transition-all group">
+                    <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-brand-orange shadow-sm group-hover:bg-brand-orange group-hover:text-white transition-all duration-500">
+                      <Zap size={28} />
+                    </div>
+                    <div>
+                      <h4 className="font-black uppercase text-sm tracking-tight mb-2">Комплектация Deluxe</h4>
+                      <p className="text-stone-500 text-sm leading-relaxed">Самая богатая стандартная комплектация: камера, кондиционер, джойстик, быстросъем и 4-контурная гидролиния.</p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-6 items-start p-8 rounded-3xl bg-stone-50 border border-stone-100 hover:border-brand-orange/30 transition-all group">
+                    <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-brand-orange shadow-sm group-hover:bg-brand-orange group-hover:text-white transition-all duration-500">
+                      <ShieldCheck size={28} />
+                    </div>
+                    <div>
+                      <h4 className="font-black uppercase text-sm tracking-tight mb-2">Гарантия 1 год</h4>
+                      <p className="text-stone-500 text-sm leading-relaxed">Официальная поддержка 12 месяцев или 1500 моточасов. Склад запчастей всегда в наличии.</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          ))}
+
+            <div className="relative">
+              <div className="aspect-square rounded-[60px] overflow-hidden shadow-2xl rotate-3 scale-95 hover:rotate-0 hover:scale-100 transition-all duration-700">
+                <img src="https://picsum.photos/seed/tech/1000/1000" alt="Tech" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+              </div>
+              <div className="absolute -bottom-10 -left-10 bg-brand-dark text-white p-10 rounded-[40px] shadow-2xl border border-white/10 max-w-xs">
+                <div className="text-5xl font-black text-brand-orange mb-2">8X</div>
+                <div className="text-sm font-bold uppercase tracking-widest leading-tight">Меньше износ шин <br /> <span className="opacity-40 font-medium">чем у Bobcat</span></div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -699,6 +698,7 @@ function Catalog({ machines }: { machines: any[] }) {
     payload: 'all',
     height: 'all'
   });
+  const [sortBy, setSortBy] = useState<'price-asc' | 'price-desc' | 'default'>('default');
 
   const filteredMachines = machines.filter(m => {
     const seriesMatch = filters.series === 'all' || 
@@ -713,8 +713,14 @@ function Catalog({ machines }: { machines: any[] }) {
     return seriesMatch && payloadMatch && heightMatch;
   });
 
-  const inStock = filteredMachines.filter(m => m.status === 'in-stock');
-  const onOrder = filteredMachines.filter(m => m.status === 'on-order');
+  const sortedMachines = [...filteredMachines].sort((a, b) => {
+    if (sortBy === 'price-asc') return a.price - b.price;
+    if (sortBy === 'price-desc') return b.price - a.price;
+    return 0;
+  });
+
+  const inStock = sortedMachines.filter(m => m.status === 'in-stock');
+  const onOrder = sortedMachines.filter(m => m.status === 'on-order');
 
   const filterOptions = {
     series: [
@@ -749,7 +755,7 @@ function Catalog({ machines }: { machines: any[] }) {
         <h1 className="text-5xl font-black uppercase tracking-tighter mb-8">Каталог <span className="text-brand-orange">Техники</span></h1>
         
         {/* Enhanced Filters */}
-        <div className="bg-white p-6 rounded-3xl shadow-sm border border-stone-100 grid md:grid-cols-3 gap-6">
+        <div className="bg-white p-6 rounded-3xl shadow-sm border border-stone-100 grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {Object.entries(filterOptions).map(([key, options]) => (
             <div key={key}>
               <label className="block text-[10px] font-black uppercase tracking-widest text-stone-400 mb-3">
@@ -772,6 +778,43 @@ function Catalog({ machines }: { machines: any[] }) {
               </div>
             </div>
           ))}
+
+          {/* Sorting */}
+          <div>
+            <label className="block text-[10px] font-black uppercase tracking-widest text-stone-400 mb-3">
+              Сортировка по цене
+            </label>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setSortBy('price-asc')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${
+                  sortBy === 'price-asc' 
+                    ? 'bg-brand-orange text-white border-brand-orange shadow-lg' 
+                    : 'bg-stone-50 text-stone-500 border-stone-100 hover:border-stone-300'
+                }`}
+              >
+                Сначала дешевле
+              </button>
+              <button
+                onClick={() => setSortBy('price-desc')}
+                className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${
+                  sortBy === 'price-desc' 
+                    ? 'bg-brand-orange text-white border-brand-orange shadow-lg' 
+                    : 'bg-stone-50 text-stone-500 border-stone-100 hover:border-stone-300'
+                }`}
+              >
+                Сначала дороже
+              </button>
+              {sortBy !== 'default' && (
+                <button
+                  onClick={() => setSortBy('default')}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-stone-400 hover:text-brand-red transition-all"
+                >
+                  Сброс
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1071,7 +1114,7 @@ function Contacts({ onOpenFeedback }: { onOpenFeedback: () => void }) {
             <div className="space-y-4">
               <div className="bg-stone-100 w-12 h-12 rounded-2xl flex items-center justify-center text-yellow-600"><Mail /></div>
               <h4 className="font-bold">Email</h4>
-              <p className="text-stone-500">info@lgztrussia.ru<br />sales@lgztrussia.ru</p>
+              <p className="text-stone-500">sale@lgzt-trade.ru</p>
             </div>
           </div>
           <div className="bg-stone-900 text-white p-12 rounded-[40px]">

@@ -187,8 +187,8 @@ async function startServer() {
         timestamp: new Date().toISOString(),
       };
 
-      // Broadcast user message
-      io.emit("message", userMsg);
+      // Broadcast user message to the sender only
+      socket.emit("message", userMsg);
 
       // Send user message to webhook and wait for potential response
       const webhookResponse = await sendToWebhook({
@@ -198,6 +198,8 @@ async function startServer() {
         timestamp: userMsg.timestamp,
         history: history.slice(-5)
       });
+
+      console.log("Webhook response:", webhookResponse);
 
       // If Webhook (Make.com) returned an answer, use it. Otherwise, fall back to Gemini.
       if (webhookResponse && webhookResponse.answer) {
@@ -212,7 +214,7 @@ async function startServer() {
         chatHistory.set(socket.id, history.slice(-10));
 
         setTimeout(() => {
-          io.emit("message", aiMsg);
+          socket.emit("message", aiMsg);
         }, 500);
         return;
       }
@@ -250,11 +252,11 @@ async function startServer() {
         });
 
         setTimeout(() => {
-          io.emit("message", aiMsg);
+          socket.emit("message", aiMsg);
         }, 1000);
       } catch (error) {
         console.error("AI Error:", error);
-        io.emit("message", {
+        socket.emit("message", {
           id: (Date.now() + 1).toString(),
           text: "Произошла ошибка при обработке запроса. Пожалуйста, попробуйте позже или позвоните нам.",
           sender: "support",
