@@ -14,6 +14,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { MACHINES, ARTICLES } from '../constants';
 
 interface Machine {
   id: string;
@@ -59,14 +60,33 @@ export default function Admin() {
 
   const fetchData = async () => {
     try {
+      console.log('Fetching data from API...');
       const [mRes, aRes] = await Promise.all([
         fetch('/api/machines'),
         fetch('/api/articles')
       ]);
-      if (mRes.ok) setMachines(await mRes.json());
-      if (aRes.ok) setArticles(await aRes.json());
+      
+      if (mRes.ok) {
+        const mData = await mRes.json();
+        console.log('Machines from API:', mData);
+        setMachines(Array.isArray(mData) && mData.length > 0 ? mData : MACHINES);
+      } else {
+        console.error('Machines API error:', mRes.status);
+        setMachines(MACHINES);
+      }
+      
+      if (aRes.ok) {
+        const aData = await aRes.json();
+        console.log('Articles from API:', aData);
+        setArticles(Array.isArray(aData) && aData.length > 0 ? aData : ARTICLES);
+      } else {
+        console.error('Articles API error:', aRes.status);
+        setArticles(ARTICLES);
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
+      setMachines(MACHINES);
+      setArticles(ARTICLES);
     }
   };
 
