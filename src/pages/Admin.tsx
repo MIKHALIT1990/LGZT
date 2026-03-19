@@ -14,61 +14,6 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  collection, 
-  doc, 
-  setDoc, 
-  deleteDoc, 
-  onSnapshot, 
-  query, 
-  writeBatch 
-} from 'firebase/firestore';
-import { 
-  signInWithPopup, 
-  GoogleAuthProvider, 
-  onAuthStateChanged,
-  signOut,
-  User,
-  signInAnonymously
-} from 'firebase/auth';
-import { db, auth } from '../firebase';
-
-enum OperationType {
-  CREATE = 'create',
-  UPDATE = 'update',
-  DELETE = 'delete',
-  LIST = 'list',
-  GET = 'get',
-  WRITE = 'write',
-}
-
-interface FirestoreErrorInfo {
-  error: string;
-  operationType: OperationType;
-  path: string | null;
-  authInfo: {
-    userId: string | undefined;
-    email: string | null | undefined;
-    emailVerified: boolean | undefined;
-    isAnonymous: boolean | undefined;
-  }
-}
-
-function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
-  const errInfo: FirestoreErrorInfo = {
-    error: error instanceof Error ? error.message : String(error),
-    authInfo: {
-      userId: auth.currentUser?.uid,
-      email: auth.currentUser?.email,
-      emailVerified: auth.currentUser?.emailVerified,
-      isAnonymous: auth.currentUser?.isAnonymous,
-    },
-    operationType,
-    path
-  }
-  console.error('Firestore Error: ', JSON.stringify(errInfo));
-  return errInfo;
-}
 
 interface Machine {
   id: string;
@@ -112,61 +57,31 @@ export default function Admin() {
     setIsLoadingAuth(false);
   }, []);
 
-  useEffect(() => {
-    console.log('Admin component mounted');
-    if (isAuthenticated) {
-      const unsubMachines = onSnapshot(collection(db, 'machines'), (snapshot) => {
-        setMachines(snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }) as Machine));
-      });
-      const unsubArticles = onSnapshot(collection(db, 'articles'), (snapshot) => {
-        setArticles(snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }) as Article));
-      });
-      return () => {
-        unsubMachines();
-        unsubArticles();
-      };
-    }
-  }, [isAuthenticated]);
-
-  const handleMigrate = async () => {
-    if (!confirm('Это перенесет данные из временного файла в постоянную базу данных. Продолжить?')) return;
+  const fetchData = async () => {
     try {
       const [mRes, aRes] = await Promise.all([
         fetch('/api/machines'),
         fetch('/api/articles')
       ]);
-      const mData = await mRes.json();
-      const aData = await aRes.json();
-
-      const batch = writeBatch(db);
-      mData.forEach((m: any) => {
-        const ref = doc(db, 'machines', m.id || m.slug);
-        batch.set(ref, m);
-      });
-      aData.forEach((a: any) => {
-        const ref = doc(db, 'articles', a.id || a.slug);
-        batch.set(ref, a);
-      });
-      await batch.commit();
-      setStatus({ type: 'success', msg: 'Миграция завершена!' });
+      if (mRes.ok) setMachines(await mRes.json());
+      if (aRes.ok) setArticles(await aRes.json());
     } catch (error) {
-      const errInfo = handleFirestoreError(error, OperationType.WRITE, 'migration');
-      setStatus({ type: 'error', msg: `Ошибка миграции: ${errInfo.error}` });
+      console.error('Error fetching data:', error);
     }
   };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchData();
+    }
+  }, [isAuthenticated]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password === 'admin123') {
-      try {
-        await signInAnonymously(auth);
-        setIsAuthenticated(true);
-        localStorage.setItem('admin_auth', 'true');
-        setStatus({ type: 'success', msg: 'Вход выполнен!' });
-      } catch (error) {
-        console.error('Auth error:', error);
-        setStatus({ type: 'error', msg: 'Ошибка авторизации в Firebase' });
-      }
+      setIsAuthenticated(true);
+      localStorage.setItem('admin_auth', 'true');
+      setStatus({ type: 'success', msg: 'Вход выполнен!' });
     } else {
       setStatus({ type: 'error', msg: 'Неверный пароль' });
     }
@@ -183,18 +98,28 @@ export default function Admin() {
     const isNew = !editingItem.id;
     const collectionName = activeTab === 'machines' ? 'machines' : 'articles';
     const id = isNew ? (editingItem.slug || Date.now().toString()) : editingItem.id;
+    const url = isNew ? `/api/${collectionName}` : `/api/${collectionName}/${id}`;
+    const method = isNew ? 'POST' : 'PUT';
 
     try {
-      const docRef = doc(db, collectionName, id);
-      await setDoc(docRef, { ...editingItem, id });
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...editingItem, id })
+      });
 
-      setStatus({ type: 'success', msg: 'Сохранено успешно!' });
-      setIsModalOpen(false);
-      setEditingItem(null);
-      setTimeout(() => setStatus(null), 3000);
+      if (response.ok) {
+        setStatus({ type: 'success', msg: 'Сохранено успешно!' });
+        setIsModalOpen(false);
+        setEditingItem(null);
+        fetchData();
+        setTimeout(() => setStatus(null), 3000);
+      } else {
+        throw new Error('Failed to save');
+      }
     } catch (error) {
-      const errInfo = handleFirestoreError(error, OperationType.WRITE, `${collectionName}/${id}`);
-      setStatus({ type: 'error', msg: `Ошибка при сохранении: ${errInfo.error}` });
+      console.error('Save error:', error);
+      setStatus({ type: 'error', msg: `Ошибка при сохранении` });
     }
   };
 
@@ -203,12 +128,20 @@ export default function Admin() {
     const collectionName = activeTab === 'machines' ? 'machines' : 'articles';
 
     try {
-      await deleteDoc(doc(db, collectionName, id));
-      setStatus({ type: 'success', msg: 'Удалено!' });
-      setTimeout(() => setStatus(null), 3000);
+      const response = await fetch(`/api/${collectionName}/${id}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        setStatus({ type: 'success', msg: 'Удалено!' });
+        fetchData();
+        setTimeout(() => setStatus(null), 3000);
+      } else {
+        throw new Error('Failed to delete');
+      }
     } catch (error) {
-      const errInfo = handleFirestoreError(error, OperationType.DELETE, `${collectionName}/${id}`);
-      setStatus({ type: 'error', msg: `Ошибка при удалении: ${errInfo.error}` });
+      console.error('Delete error:', error);
+      setStatus({ type: 'error', msg: `Ошибка при удалении` });
     }
   };
 
@@ -307,14 +240,8 @@ export default function Admin() {
             </h2>
             <div className="flex items-center gap-4">
               <p className="text-green-600 text-xs font-bold flex items-center gap-2">
-                <CheckCircle2 size={14} /> Данные синхронизированы с Firebase
+                <CheckCircle2 size={14} /> Данные синхронизированы с сервером
               </p>
-              <button 
-                onClick={handleMigrate}
-                className="text-[10px] font-black uppercase tracking-widest text-stone-400 hover:text-brand-orange transition-colors"
-              >
-                Перенести из JSON
-              </button>
             </div>
           </div>
           <button 

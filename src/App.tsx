@@ -30,8 +30,6 @@ import {
   Clock
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { collection, onSnapshot, query, orderBy, getDocFromServer, doc } from 'firebase/firestore';
-import { db } from './firebase';
 import { MACHINES, ARTICLES, DEALERS, COMPARISON_POINTS, LEASING_PARTNERS } from './constants';
 import ChatWidget from './components/ChatWidget';
 import FeedbackModal from './components/FeedbackModal';
@@ -1265,48 +1263,36 @@ export default function App() {
   }, [location.pathname]);
 
   useEffect(() => {
-    async function testConnection() {
+    async function fetchData() {
       try {
-        await getDocFromServer(doc(db, 'test', 'connection'));
-      } catch (error) {
-        if(error instanceof Error && error.message.includes('the client is offline')) {
-          console.error("Please check your Firebase configuration. ");
+        const [machinesRes, articlesRes] = await Promise.all([
+          fetch('/api/machines'),
+          fetch('/api/articles')
+        ]);
+        
+        if (machinesRes.ok) {
+          const mData = await machinesRes.json();
+          setMachines(mData.length > 0 ? mData : MACHINES);
+        } else {
+          setMachines(MACHINES);
         }
+
+        if (articlesRes.ok) {
+          const aData = await articlesRes.json();
+          setArticles(aData.length > 0 ? aData : ARTICLES);
+        } else {
+          setArticles(ARTICLES);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setMachines(MACHINES);
+        setArticles(ARTICLES);
+      } finally {
+        setIsLoading(false);
       }
     }
-    testConnection();
 
-    const unsubMachines = onSnapshot(query(collection(db, 'machines')), (snapshot) => {
-      const mData = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
-      if (mData.length > 0) {
-        setMachines(mData);
-      } else {
-        // Fallback to local constants if Firestore is empty (initial state)
-        setMachines(MACHINES);
-      }
-      setIsLoading(false);
-    }, (error) => {
-      console.error('Firestore machines error:', error);
-      setMachines(MACHINES);
-      setIsLoading(false);
-    });
-
-    const unsubArticles = onSnapshot(query(collection(db, 'articles')), (snapshot) => {
-      const aData = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
-      if (aData.length > 0) {
-        setArticles(aData);
-      } else {
-        setArticles(ARTICLES);
-      }
-    }, (error) => {
-      console.error('Firestore articles error:', error);
-      setArticles(ARTICLES);
-    });
-
-    return () => {
-      unsubMachines();
-      unsubArticles();
-    };
+    fetchData();
   }, []);
 
   const openFeedback = (title?: string) => {
