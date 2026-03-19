@@ -1272,14 +1272,14 @@ export default function App() {
         
         if (machinesRes.ok) {
           const mData = await machinesRes.json();
-          setMachines(mData.length > 0 ? mData : MACHINES);
+          setMachines(Array.isArray(mData) && mData.length > 0 ? mData : MACHINES);
         } else {
           setMachines(MACHINES);
         }
 
         if (articlesRes.ok) {
           const aData = await articlesRes.json();
-          setArticles(aData.length > 0 ? aData : ARTICLES);
+          setArticles(Array.isArray(aData) && aData.length > 0 ? aData : ARTICLES);
         } else {
           setArticles(ARTICLES);
         }
